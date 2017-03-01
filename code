@@ -1,0 +1,110 @@
+class Node(object):
+
+    def __init__(self, k, d, n = None):
+        self.key  = k
+        self.data = d
+        self.next = n   # reference to next item in list
+
+    def keyData(self): return self.key,self.data
+    def __str__(self):
+        return "[" + str(self.key) + ", " + str(self.data) + "]"
+
+class  CircularList(object):
+    """Creates a queue in which the last node is pointing to the first"""
+    def __init__(self):
+        self.__tail = None #what this points to is the "head"  of  the list
+        self.__numNodes = 0  #will keep track of size
+
+    def isEmpty(self):
+        return self.__numNodes == 0
+
+    #inserts a node at the head of the list
+    def insert(self,key,data):
+        newNode = Node(key,data)
+        if self.isEmpty():
+            newNode.next = newNode #points back to itself, if it's the only node in the list
+            self.__tail = newNode
+        else:
+            newNode.next = self.__tail.next #newNode points to the previous head
+            self.__tail.next = newNode
+        self.__numNodes +=1 #add to the list count
+
+    #deleting the node at the head of the list
+    def delete(self):
+        if self.isEmpty(): return None #if attempts to delete from an empty list
+        deleted = self.__tail.next
+        self.__tail.next = deleted.next #tail is now pointing to the node after head. "deleted" can be garbage collected after this
+        self.__numNodes -=1
+        return deleted.keyData()
+
+    #return the numNodes, the length of the CLL
+    def __len__(self): return self.__numNodes
+
+    def getTail(self):
+        return self.__tail
+
+    def __str__(self):
+        ans = "("
+        cur = None
+        if self.__numNodes != 0:
+            cur = self.__tail.next
+            ans += str(cur) + " ==> "
+            cur = cur.next
+            while cur and cur != self.__tail.next:
+                ans += str(cur) +" ==> "
+                cur = cur.next
+        ans +=")"
+        return ans
+
+    def delTail(self):
+        self.__tail = ()
+        self.__numNodes = 0
+    def betterStr(self):
+        ans = "("
+        cur = None
+        i = 0
+        if self.__numNodes != 0:
+            cur = self.__tail.next
+        while cur and i<(len(self)/2):
+            ans += str(cur) + "==>"
+            cur = cur.next
+            i +=1
+        if self.__numNodes != 0:
+            ans += "\n"
+        while cur and cur !=self.__tail.next:
+            ans += str(cur)+"==>"
+            cur = cur.next
+        ans += ")"
+        return ans
+
+
+    #combine 2 CLs
+    def merge(self,other):
+        if self.isEmpty():
+            self.__tail = other.getTail() #even if both are empty, __tail will still just keep pointing at nothing
+            self.__numNodes = other.__numNodes #couresy of Alan J Broder
+        elif other.isEmpty():
+            pass
+        else:
+            head = self.__tail.next
+            self.__tail.next = other.getTail().next
+            other.getTail().next = head
+            self.__numNodes += other.numNodes #courtesy of Alan J Broder
+        other.delTail()
+
+
+def __main():
+    CL = CircularList()
+    CL.insert("good",1)
+    print(CL.getTail())
+    CL.insert("mornin\'",2)
+    print(CL.getTail().next)
+    CL.insert("good",3)
+    print(CL.getTail().next)
+    CL.insert("mornin\'",4)
+    CL.insert("it's great",5)
+    print(CL.getTail())
+    print(CL)
+
+if __name__ == "__main__":
+    __main()
